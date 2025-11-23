@@ -37,7 +37,7 @@ game = KesslerGame(settings=game_settings)  # Use this to visualize the game sce
 pre = time.perf_counter()
 
 # List of controllers being evaluated
-score, perf_data = game.run(scenario=my_test_scenario, controllers=[TeamController(), TestController()])
+score, perf_data = game.run(scenario=my_test_scenario, controllers=[TeamController()])
 
 # Print out some general info about the result
 print('Scenario eval time: '+str(time.perf_counter()-pre))
