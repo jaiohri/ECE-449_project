@@ -22,11 +22,12 @@ class TestController(KesslerController):
         bullet_time = ctrl.Antecedent(np.arange(0,1.01,0.01), 'bullet_time')
         theta_delta = ctrl.Antecedent(np.arange(-1*math.pi, math.pi, 0.1), 'theta_delta')
         asteroid_dist = ctrl.Antecedent(np.arange(0, 800, 1), 'asteroid_dist')
-
+        ship_thrust_a = ctrl.Antecedent(np.arange(-480, 480, 1), 'ship_thrust_a')
+        
         # Consequents
         ship_turn = ctrl.Consequent(np.arange(-180, 180, 1), 'ship_turn')
         ship_fire = ctrl.Consequent(np.arange(-1, 1, 0.1), 'ship_fire')
-        ship_thrust = ctrl.Consequent(np.arange(-480, 480, 1), 'ship_thrust')
+        ship_thrust_c = ctrl.Consequent(np.arange(-480, 480, 1), 'ship_thrust_c')
         ship_mine = ctrl.Consequent(np.arange(-1, 1, 0.1), 'ship_mine')
 
         # Membership functions
@@ -86,12 +87,13 @@ class TestController(KesslerController):
         rule10 = ctrl.Rule(bullet_time['L'] & asteroid_dist['Far'], ship_fire['No'])
         # Thrust rules
         rule11 = ctrl.Rule(asteroid_dist['Close'], ship_thrust['Stop'])
-        rule12 = ctrl.Rule(asteroid_dist['Medium'], ship_thrust['Fwd'])
+        rule12 = ctrl.Rule(asteroid_dist['Medium'], ship_thrust['Stop'])
         rule13 = ctrl.Rule(asteroid_dist['Far'], ship_thrust['Fwd'])
         # Mine rules
-        rule14 = ctrl.Rule(asteroid_dist['Close'], ship_mine['No'])
-        rule15 = ctrl.Rule(asteroid_dist['Medium'], ship_mine['No'])
-        rule16 = ctrl.Rule(asteroid_dist['Far'], ship_mine['No'])
+        rule14 = ctrl.Rule(asteroid_dist['Close'] & bullet_time['S'], ship_mine['Yes'])
+        rule15 = ctrl.Rule(asteroid_dist['Medium'] & bullet_time['S'], ship_mine['No'])
+        rule16 = ctrl.Rule(asteroid_dist['Far'] | bullet_time['L'] | bullet_time['L'], ship_mine['No'])
+
         # Control system
         self.control_system = ctrl.ControlSystem([rule1, rule2, rule3, rule4, rule5, rule6, rule7,
                                                   rule8, rule9, rule10,
@@ -115,7 +117,6 @@ class TestController(KesslerController):
         # Find intercepts
         ship_pos_x = ship_state['position'][0]
         ship_pos_y = ship_state['position'][1]
-        ship_heading = ship_state['heading']
 
         closest_asteroid = None
 
